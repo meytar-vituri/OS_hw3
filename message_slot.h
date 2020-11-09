@@ -11,5 +11,4 @@
 #define DEVICE_FILE_NAME "message_slot"
 #define DEVICE_RANGE_NAME "message_slot"
 #define TOTAL_DEVICES 256
-#endif MESSAGE_SLOT_H
-
+#endif

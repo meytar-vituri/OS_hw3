@@ -15,7 +15,6 @@ int main (int argc, char* argv[] ){
     int fd,ret_val;
     unsigned long channel_id;
     char buffer[BUF_LEN];
-    long len = strlen(argv[3]);
 
     fd = open(argv[1], O_RDONLY);
     if (fd<0){

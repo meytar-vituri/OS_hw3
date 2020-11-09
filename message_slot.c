@@ -195,6 +195,7 @@ struct file_operations Fops =
 // Initialize the module - Register the character device
 static int __init simple_init(void)
 {
+    printk("simple init");
     int rc = -1;
     if (slots == NULL){
         printk("kmalloc error\n");
@@ -203,7 +204,7 @@ static int __init simple_init(void)
 
     // Register driver capabilities. Obtain major num
     rc = register_chrdev( MAJOR_NUM, DEVICE_RANGE_NAME, &Fops );
-
+    printk("simple init, device registered!");
     // Negative values signify an error
     if( rc < 0 )
     {
@@ -221,7 +222,8 @@ static int __init simple_init(void)
 static void __exit simple_cleanup(void)
 {
     printk("exiting device nubmer %d", minor);
-    for(int i=0; i<TOTAL_DEVICES; i++){
+    int i;
+    for(i = 0; i < TOTAL_DEVICES; i++){
         free_channels_list(slots[i]->first_channel);
         kfree(slots[i]);
     }
