@@ -13,7 +13,7 @@ int main (int argc, char* argv[] ){
         exit(FAILED);
     }
     int fd,ret_val;
-    unsigned int channel_id;
+    unsigned long channel_id;
     char buffer[BUF_LEN];
     long len = strlen(argv[3]);
 
@@ -25,7 +25,7 @@ int main (int argc, char* argv[] ){
     channel_id = atoi(argv[2]);
     ret_val = ioctl(fd,IOCTL_SET_MSGSLOT, channel_id);
     if (ret_val != SUCCESS){
-        perror("error updating IOCTL");
+        perror("error setting the channel, wrong channel id");
         exit(FAILED);
     }
 
