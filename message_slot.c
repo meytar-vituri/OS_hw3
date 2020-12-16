@@ -88,7 +88,8 @@ static ssize_t device_read( struct file* file, char __user* buffer, size_t lengt
         return -EINVAL;
     }
     channel_node *curr_channel = slots[minor]->curr_channel;
-    if (curr_channel != NULL){
+
+    if (curr_channel != NULL && curr_channel->text_length>0){
         if (length < curr_channel->text_length || buffer == NULL){
             return -ENOSPC;
         }
@@ -162,6 +163,7 @@ static long device_ioctl( struct   file* file,
                 slots[minor]->curr_channel = temp;
                 return SUCCESS;
             }
+            temp = temp->next_channel;
         }
         temp = (channel_node *)kmalloc(sizeof(channel_node), GFP_KERNEL);
         if (temp == NULL){
@@ -170,6 +172,7 @@ static long device_ioctl( struct   file* file,
         }
         temp->channel_id = ioctl_param;
         temp->next_channel = slots[minor]->first_channel;
+        temp->text_length=0;
         slots[minor]->curr_channel = temp;
         slots[minor]->first_channel = temp;
         return SUCCESS;
@@ -208,13 +211,13 @@ static int __init simple_init(void)
     // Negative values signify an error
     if( rc < 0 )
     {
+        printk("register failed");
         printk( KERN_ALERT "%s registraion failed for  %d\n",
                 DEVICE_FILE_NAME, MAJOR_NUM );
         return rc;
+
     }
-
-    printk(KERN_INFO "message slot registered successfully with major num%d\n ", MAJOR_NUM);
-
+    printk("message slot registered successfully with major num%d\n ", MAJOR_NUM);
     return 0;
 }
 
@@ -224,8 +227,10 @@ static void __exit simple_cleanup(void)
     printk("exiting device nubmer %d", minor);
     int i;
     for(i = 0; i < TOTAL_DEVICES; i++){
-        free_channels_list(slots[i]->first_channel);
-        kfree(slots[i]);
+        if (slots[i]!=NULL){
+            free_channels_list(slots[i]->first_channel);
+            kfree(slots[i]);
+        }
     }
     // Unregister the device
     // Should always succeed

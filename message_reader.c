@@ -8,6 +8,7 @@
 #include "message_slot.h"
 
 int main (int argc, char* argv[] ){
+    fprintf(stdout,"wish you a pleasent reading!\n");
     if (argc<3){
         fprintf(stderr,"not enough argument, submit 3 arguments next time");
         exit(FAILED);
