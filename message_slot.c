@@ -83,11 +83,12 @@ static int device_release( struct inode* inode, struct file*  file)
 static ssize_t device_read( struct file* file, char __user* buffer, size_t length, loff_t* offset )
 {
     char *channel_text;
+    channel_node *curr_channel;
     printk( "Invoking device_read(%p,%ld)\n", file, length );
     if(file->private_data == NULL) {
         return -EINVAL;
     }
-    channel_node *curr_channel = slots[minor]->curr_channel;
+    curr_channel = slots[minor]->curr_channel;
 
     if (curr_channel != NULL && curr_channel->text_length>0){
         if (length < curr_channel->text_length || buffer == NULL){
@@ -113,6 +114,7 @@ static ssize_t device_read( struct file* file, char __user* buffer, size_t lengt
 static ssize_t device_write( struct file* file, const char __user* buffer,size_t length, loff_t* offset)
 {
     char *user_text;
+    channel_node *curr_channel;
     printk("Invoking device_write(%p,%ld)\n", file, length);
     if (file ->private_data == NULL){
         return -EINVAL;
@@ -123,7 +125,7 @@ static ssize_t device_write( struct file* file, const char __user* buffer,size_t
     if (buffer == NULL){
         return -ENOSPC;
     }
-    channel_node *curr_channel = slots[minor]->curr_channel;
+    curr_channel = slots[minor]->curr_channel;
     curr_channel->text_length = length;
     user_text = kmalloc(sizeof(char) * length, GFP_KERNEL);
     if (user_text == NULL){
@@ -147,6 +149,7 @@ static long device_ioctl( struct   file* file,
                           unsigned int   ioctl_command_id,
                           unsigned long  ioctl_param )
 {
+    channel_node *temp;
     // Switch according to the ioctl called
     if( IOCTL_SET_MSGSLOT == ioctl_command_id )
     {
@@ -157,7 +160,7 @@ static long device_ioctl( struct   file* file,
         }
         //setting the slots[minor] to the  relevant channel
         file->private_data = (void *) ioctl_param;
-        channel_node *temp = slots[minor]->first_channel;
+        temp = slots[minor]->first_channel;
         while (temp != NULL){
             if (temp->channel_id==ioctl_param){
                 slots[minor]->curr_channel = temp;
@@ -198,7 +201,6 @@ struct file_operations Fops =
 // Initialize the module - Register the character device
 static int __init simple_init(void)
 {
-    printk("simple init");
     int rc = -1;
     if (slots == NULL){
         printk("kmalloc error\n");
@@ -224,8 +226,8 @@ static int __init simple_init(void)
 //---------------------------------------------------------------
 static void __exit simple_cleanup(void)
 {
-    printk("exiting device nubmer %d", minor);
     int i;
+    printk("exiting device nubmer %d", minor);
     for(i = 0; i < TOTAL_DEVICES; i++){
         if (slots[i]!=NULL){
             free_channels_list(slots[i]->first_channel);
