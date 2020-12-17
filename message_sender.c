@@ -22,7 +22,7 @@ int main (int argc, char* argv[] ){
         exit(FAILED);
     }
     channel_id = atoi(argv[2]);
-    ret_val = ioctl(fd,IOCTL_SET_MSGSLOT, channel_id);
+    ret_val = ioctl(fd,MSG_SLOT_CHANNEL, channel_id);
     if (ret_val != SUCCESS){
         perror("error updating IOCTL");
         exit(FAILED);
