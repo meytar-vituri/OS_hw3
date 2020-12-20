@@ -1,7 +1,7 @@
-.o
+*.o
 .ko.cmd
 .o.cmd
-.ko
+*.ko
 .mod.c
 .mod.o
 .symvers
